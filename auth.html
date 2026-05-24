@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Authentication - DermaScan AI</title>
+  <link rel="stylesheet" href="./css/styles.css">
+  <style>
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      background-color: var(--bg);
+    }
+
+    .auth-card {
+      width: 100%;
+      max-width: 480px;
+      padding: 40px;
+    }
+
+    .auth-header {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+
+    .tab-switcher {
+      display: flex;
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 4px;
+      margin-bottom: 16px;
+    }
+
+    .tab {
+      flex: 1;
+      text-align: center;
+      padding: 8px 16px;
+      border-radius: 999px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      color: var(--text-secondary);
+      border: none;
+      background: transparent;
+      transition: all 0.2s;
+    }
+
+    .tab.active {
+      background: var(--accent);
+      color: white;
+    }
+
+    .auth-disclaimer {
+      font-size: 12px;
+      color: var(--text-secondary);
+      text-align: center;
+      margin-bottom: 24px;
+    }
+
+    .checkbox-group {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      margin-top: 16px;
+      margin-bottom: 24px;
+    }
+
+    .checkbox-group input {
+      margin-top: 4px;
+    }
+
+    .checkbox-group label {
+      font-size: 13px;
+      color: var(--text-secondary);
+      line-height: 1.5;
+    }
+
+    #auth-error {
+      display: none;
+      color: var(--danger);
+      background-color: var(--danger-bg);
+      padding: 12px;
+      border-radius: 6px;
+      margin-top: 16px;
+      font-size: 14px;
+      text-align: center;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="card auth-card">
+
+    <div class="auth-header">
+      <div class="flex justify-center items-center gap-8 mb-16">
+        <svg style="color:var(--accent);width:28px;height:28px;fill:currentColor;" viewBox="0 0 24 24">
+          <path d="M19 11h-5V6h-4v5H5v4h5v5h4v-5h5v-4z" />
+        </svg>
+        <span style="font-weight:600;font-size:20px;color:var(--primary);">DermaScan AI</span>
+      </div>
+    </div>
+
+    <div class="tab-switcher">
+      <button class="tab active" id="tab-signin" onclick="switchTab('signin')">Sign In</button>
+      <button class="tab" id="tab-signup" onclick="switchTab('signup')">Create Account</button>
+    </div>
+    <p class="auth-disclaimer">Your information is stored securely and used only for clinical screening purposes.</p>
+
+    <!-- SIGN IN -->
+    <div id="signin-form">
+      <div class="form-group">
+        <label class="field-label" for="signin-username">Username</label>
+        <input type="text" id="signin-username" placeholder="Enter your username" autocomplete="username">
+      </div>
+      <div class="form-group">
+        <label class="field-label" for="signin-password">Password</label>
+        <input type="password" id="signin-password" placeholder="Enter your password" autocomplete="current-password">
+      </div>
+      <button class="btn btn-primary w-full mt-16" id="signin-btn">Sign In</button>
+    </div>
+
+    <!-- SIGN UP -->
+    <div id="signup-form" class="hidden">
+      <div class="form-group">
+        <label class="field-label" for="signup-username">Username</label>
+        <input type="text" id="signup-username" placeholder="Letters, numbers and _ only">
+      </div>
+      <div class="grid grid-cols-2 gap-16">
+        <div class="form-group">
+          <label class="field-label" for="signup-first">First Name</label>
+          <input type="text" id="signup-first">
+        </div>
+        <div class="form-group">
+          <label class="field-label" for="signup-last">Last Name</label>
+          <input type="text" id="signup-last">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="field-label" for="signup-password">Password</label>
+        <input type="password" id="signup-password" placeholder="Minimum 8 characters" autocomplete="new-password">
+      </div>
+      <div class="form-group">
+        <label class="field-label" for="signup-confirm">Confirm Password</label>
+        <input type="password" id="signup-confirm" autocomplete="new-password">
+      </div>
+      <div class="grid grid-cols-2 gap-16">
+        <div class="form-group">
+          <label class="field-label" for="signup-age">Age</label>
+          <input type="number" id="signup-age" min="1" max="120">
+        </div>
+        <div class="form-group">
+          <label class="field-label" for="signup-gender">Gender</label>
+          <select id="signup-gender">
+            <option value="" disabled selected>Select...</option>
+            <option value="Male">Male</option>
+            <option value="Female">Female</option>
+            <option value="Non-binary">Non-binary</option>
+            <option value="Prefer not to say">Prefer not to say</option>
+          </select>
+        </div>
+      </div>
+      <div class="checkbox-group">
+        <input type="checkbox" id="signup-terms">
+        <label for="signup-terms">I have read and accept the Medical Disclaimer and Terms of Use. I understand that
+          DermaScan AI does not provide medical diagnoses.</label>
+      </div>
+      <button class="btn btn-primary w-full" id="signup-btn">Create Account</button>
+    </div>
+
+    <div id="auth-error"></div>
+  </div>
+
+  <script>
+    function switchTab(tab) {
+      document.getElementById('tab-signin').classList.remove('active')
+      document.getElementById('tab-signup').classList.remove('active')
+      document.getElementById('signin-form').classList.add('hidden')
+      document.getElementById('signup-form').classList.add('hidden')
+      document.getElementById('auth-error').style.display = 'none'
+      document.getElementById('tab-' + tab).classList.add('active')
+      document.getElementById(tab + '-form').classList.remove('hidden')
+    }
+  </script>
+
+  <script type="module">
+    import { supabase, signIn, signUp } from './js/supabase.js'
+
+    // Already logged in → go to dashboard
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) window.location.href = 'dashboard.html'
+    })
+
+    function showError(msg) {
+      const el = document.getElementById('auth-error')
+      el.textContent = msg
+      el.style.display = 'block'
+    }
+
+    function setLoading(btnId, label, loading) {
+      const btn = document.getElementById(btnId)
+      btn.disabled = loading
+      btn.textContent = loading ? label : label
+      if (loading) {
+        btn.innerHTML = `<span class="spinner"></span> &nbsp;${label}`
+      }
+    }
+
+    // ── SIGN IN ──────────────────────────────────────────
+    document.getElementById('signin-btn').addEventListener('click', async () => {
+      document.getElementById('auth-error').style.display = 'none'
+
+      const username = document.getElementById('signin-username').value.trim()
+      const password = document.getElementById('signin-password').value
+
+      if (!username) return showError('Please enter your username.')
+      if (!password) return showError('Please enter your password.')
+
+      setLoading('signin-btn', 'Signing in...', true)
+      try {
+        await signIn(username, password)
+        window.location.href = 'dashboard.html'
+      } catch (err) {
+        showError(err.message)
+      } finally {
+        setLoading('signin-btn', 'Sign In', false)
+      }
+    })
+
+    // ── SIGN UP ──────────────────────────────────────────
+    document.getElementById('signup-btn').addEventListener('click', async () => {
+      document.getElementById('auth-error').style.display = 'none'
+
+      const username = document.getElementById('signup-username').value.trim()
+      const firstName = document.getElementById('signup-first').value.trim()
+      const lastName = document.getElementById('signup-last').value.trim()
+      const password = document.getElementById('signup-password').value
+      const confirm = document.getElementById('signup-confirm').value
+      const age = document.getElementById('signup-age').value
+      const gender = document.getElementById('signup-gender').value
+      const terms = document.getElementById('signup-terms').checked
+
+      // Validate
+      if (!username) return showError('Please choose a username.')
+      if (username.length < 3) return showError('Username must be at least 3 characters.')
+      if (!/^[a-zA-Z0-9_]+$/.test(username)) return showError('Username can only contain letters, numbers and underscores.')
+      if (!firstName || !lastName) return showError('Please enter your full name.')
+      if (password.length < 8) return showError('Password must be at least 8 characters.')
+      if (password !== confirm) return showError('Passwords do not match.')
+      if (!age || parseInt(age) < 1) return showError('Please enter a valid age.')
+      if (!gender) return showError('Please select a gender.')
+      if (!terms) return showError('You must accept the terms and medical disclaimer.')
+
+      setLoading('signup-btn', 'Creating account...', true)
+      try {
+        await signUp(username, password, { firstName, lastName, age, gender })
+        window.location.href = 'dashboard.html'
+      } catch (err) {
+        showError(err.message)
+      } finally {
+        setLoading('signup-btn', 'Create Account', false)
+      }
+    })
+  </script>
+</body>
+
+</html>

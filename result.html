@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Scan Results - DermaScan AI</title>
+  <link rel="stylesheet" href="./css/styles.css">
+  <style>
+    body { background-color: var(--bg); }
+    .result-container {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 48px 24px;
+    }
+    .breadcrumb {
+      font-size: 14px;
+      color: var(--text-secondary);
+      margin-bottom: 24px;
+    }
+    .breadcrumb a { color: var(--text-secondary); }
+    .breadcrumb a:hover { color: var(--primary); }
+    
+    .result-header {
+      display: flex;
+      gap: 32px;
+    }
+    .result-thumb {
+      width: 200px;
+      height: 200px;
+      object-fit: cover;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .result-meta {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    
+    .score-large {
+      font-size: 64px;
+      font-weight: 600;
+      line-height: 1;
+      margin-bottom: 24px;
+    }
+    
+    .progress-bar-container {
+      position: relative;
+      margin-bottom: 32px;
+      padding-bottom: 20px;
+    }
+    .progress-track {
+      width: 100%;
+      height: 16px;
+      background-color: #E8ECF0;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      border-radius: 8px;
+      transition: width 1s ease-out;
+      width: 0%;
+    }
+    .tick {
+      position: absolute;
+      top: 16px;
+      height: 8px;
+      width: 2px;
+      background-color: var(--border);
+    }
+    .tick-label {
+      position: absolute;
+      top: 26px;
+      font-size: 12px;
+      color: var(--text-secondary);
+      transform: translateX(-50%);
+    }
+    
+    .interp-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+    .interp-col {
+      padding: 16px;
+      border-radius: 4px;
+      font-size: 14px;
+      line-height: 1.5;
+      color: var(--text-primary);
+      opacity: 0.4;
+      transition: opacity 0.3s;
+    }
+    .interp-col.active {
+      opacity: 1;
+    }
+    .interp-low { background-color: var(--success-bg); border-left: 3px solid var(--success); }
+    .interp-mod { background-color: var(--warning-bg); border-left: 3px solid var(--warning); }
+    .interp-high { background-color: var(--danger-bg); border-left: 3px solid var(--danger); }
+    
+    .next-steps-row {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    .ns-icon {
+      width: 40px; height: 40px;
+      flex-shrink: 0;
+      color: var(--accent);
+      background-color: #F0F5FB;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .ns-icon svg { width: 20px; height: 20px; }
+    .ns-content h3 { font-size: 16px; margin-bottom: 4px; }
+    .ns-content p { font-size: 14px; color: var(--text-secondary); }
+    
+    .action-row {
+      display: flex;
+      gap: 16px;
+      align-items: center;
+      margin-top: 32px;
+      padding-top: 24px;
+      border-top: 1px solid var(--border);
+    }
+    
+    .medical-disclaimer {
+      background-color: #FEF9E8;
+      border: 1px solid #F0D070;
+      border-radius: 8px;
+      padding: 24px;
+      margin-top: 24px;
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <div class="container flex justify-between items-center w-full">
+      <div class="flex items-center gap-8">
+        <svg class="icon" style="color: var(--accent); width: 24px; height: 24px;" viewBox="0 0 24 24">
+          <path d="M19 11h-5V6h-4v5H5v4h5v5h4v-5h5v-4z"/>
+        </svg>
+        <span style="font-weight: 600; font-size: 18px; color: var(--primary);">DermaScan AI</span>
+      </div>
+      <div class="flex items-center gap-24">
+        <a href="dashboard.html" class="btn btn-secondary" style="padding: 6px 16px; font-size: 14px;">Dashboard</a>
+      </div>
+    </div>
+  </nav>
+
+  <main class="main-content">
+    <div class="result-container" id="content-container" style="display: none;">
+      <div class="breadcrumb">
+        <a href="dashboard.html">Dashboard</a> / Scan Results — <span id="bc-date"></span>
+      </div>
+      
+      <div class="card result-header mb-24">
+        <img src="" alt="Analyzed image" class="result-thumb" id="result-img">
+        <div class="result-meta">
+          <div class="section-label mb-8">Analysis Report</div>
+          <h1 style="font-size: 24px; margin-bottom: 8px;">Skin Lesion Risk Assessment</h1>
+          <div style="font-family: monospace; font-size: 12px; color: var(--disabled-text); margin-bottom: 4px;">ID: #<span id="scan-id-short"></span></div>
+          <div style="font-size: 14px; color: var(--text-secondary); margin-bottom: 16px;">Analysed on <span id="scan-date"></span></div>
+          <div>
+            <span class="badge" id="risk-badge" style="font-size: 16px; padding: 6px 16px;"></span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="card mb-24">
+        <div class="section-label mb-16">Malignancy Probability Score</div>
+        <div class="score-large" id="score-display">--.-%</div>
+        
+        <div class="progress-bar-container">
+          <div class="progress-track">
+            <div class="progress-fill" id="progress-fill"></div>
+          </div>
+          <div class="tick" style="left: 30%;"></div>
+          <div class="tick-label" style="left: 30%;">Low / Moderate</div>
+          <div class="tick" style="left: 60%;"></div>
+          <div class="tick-label" style="left: 60%;">Moderate / High</div>
+        </div>
+        
+        <div class="interp-grid">
+          <div class="interp-col interp-low" id="interp-col-low">
+            <strong style="color: var(--text-primary);">Low Risk (0–30%)</strong><br>Visual features suggest lower probability of malignancy. Continue routine dermatological monitoring.
+          </div>
+          <div class="interp-col interp-mod" id="interp-col-mod">
+            <strong style="color: var(--text-primary);">Moderate Risk (30–60%)</strong><br>Some features warrant attention. A dermatologist consultation is recommended.
+          </div>
+          <div class="interp-col interp-high" id="interp-col-high">
+            <strong style="color: var(--text-primary);">High Risk (61–100%)</strong><br>Significant visual indicators present. Please seek dermatological evaluation promptly.
+          </div>
+        </div>
+      </div>
+      
+      <div class="card">
+        <h2 style="font-size: 20px; margin-bottom: 24px;">Recommended Next Steps</h2>
+        
+        <div class="next-steps-row">
+          <div class="ns-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"></path></svg></div>
+          <div class="ns-content">
+            <h3>Consult a Dermatologist</h3>
+            <p>This result should be reviewed by a qualified dermatologist, regardless of the risk level. AI analysis does not replace clinical examination.</p>
+          </div>
+        </div>
+        
+        <div class="next-steps-row">
+          <div class="ns-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg></div>
+          <div class="ns-content">
+            <h3>Schedule a Skin Check</h3>
+            <p>If you do not already have a dermatologist, contact your primary care physician for a referral or search your local hospital's dermatology department.</p>
+          </div>
+        </div>
+        
+        <div class="next-steps-row">
+          <div class="ns-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg></div>
+          <div class="ns-content">
+            <h3>Monitor and Re-scan</h3>
+            <p>If you notice changes in size, shape, colour, or texture of any lesion, upload a new image and seek clinical attention.</p>
+          </div>
+        </div>
+        
+        <div class="action-row">
+          <button class="btn btn-secondary" onclick="window.print()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 18px; height: 18px; margin-right: 8px;"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+            Download Report
+          </button>
+          <a href="dashboard.html" style="font-weight: 500;">Return to Dashboard</a>
+        </div>
+      </div>
+      
+      <div class="medical-disclaimer">
+        <div style="display: flex; gap: 12px; margin-bottom: 8px; align-items: center;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="var(--warning)" stroke-width="2" style="width: 24px; height: 24px;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+          <h3 style="color: #5A4800; font-size: 16px; margin: 0;">Medical Disclaimer</h3>
+        </div>
+        <p style="color: #5A4800; font-size: 14px; line-height: 1.6; margin-bottom: 12px;">The probability score displayed on this page is generated by an artificial intelligence model and is intended solely as a screening assistance tool. It does not constitute a medical diagnosis, clinical opinion, or recommendation for treatment. The accuracy of this result depends on image quality, lighting conditions, and lesion characteristics not fully captured in a photograph. DermaScan AI expressly disclaims any liability for clinical decisions made on the basis of this report. You must consult a licensed and qualified dermatologist or medical professional for any health-related decisions.</p>
+        <p style="color: #5A4800; font-size: 13px; font-style: italic;">If you are experiencing a medical emergency, call your local emergency services immediately.</p>
+      </div>
+    </div>
+    
+    <div id="loading-state" style="text-align: center; padding: 96px 0;">
+      <div class="spinner" style="width: 48px; height: 48px; border-width: 4px;"></div>
+      <div style="margin-top: 16px; color: var(--text-secondary);">Loading report...</div>
+    </div>
+  </main>
+
+  <script type="module">
+    import { supabase, getScanById } from './js/supabase.js';
+
+    async function init() {
+      const { data: { session }, error } = await supabase.auth.getSession();
+      if (!session) {
+        window.location.href = 'auth.html';
+        return;
+      }
+      
+      const urlParams = new URLSearchParams(window.location.search);
+      const scanId = urlParams.get('scanId');
+      
+      if (!scanId) {
+        window.location.href = 'dashboard.html';
+        return;
+      }
+
+      try {
+        const scan = await getScanById(scanId);
+        if (!scan) throw new Error('Scan not found');
+        
+        // Ensure user owns scan
+        if (scan.patient_id !== session.user.id) {
+          window.location.href = 'dashboard.html';
+          return;
+        }
+
+        renderResult(scan);
+        
+        document.getElementById('loading-state').style.display = 'none';
+        document.getElementById('content-container').style.display = 'block';
+      } catch (err) {
+        console.error(err);
+        alert("Failed to load scan. Returning to dashboard.");
+        window.location.href = 'dashboard.html';
+      }
+    }
+
+    function renderResult(scan) {
+      const dateStr = new Date(scan.uploaded_at).toLocaleString();
+      document.getElementById('bc-date').textContent = new Date(scan.uploaded_at).toLocaleDateString();
+      document.getElementById('scan-date').textContent = dateStr;
+      document.getElementById('scan-id-short').textContent = scan.id.substring(0, 8);
+      document.getElementById('result-img').src = scan.image_url;
+      
+      if (scan.predictions && scan.predictions.length > 0) {
+        const prob = scan.predictions[0].probability;
+        const probPct = (prob * 100).toFixed(1);
+        
+        document.getElementById('score-display').textContent = `${probPct}%`;
+        
+        const fill = document.getElementById('progress-fill');
+        setTimeout(() => { fill.style.width = `${probPct}%`; }, 100);
+        
+        let riskColor, riskLabel, badgeClass;
+        if (prob < 0.3) {
+          riskColor = 'var(--success)';
+          riskLabel = 'Low Risk';
+          badgeClass = 'badge-low';
+          document.getElementById('interp-col-low').classList.add('active');
+        } else if (prob <= 0.6) {
+          riskColor = 'var(--warning)';
+          riskLabel = 'Moderate Risk';
+          badgeClass = 'badge-moderate';
+          document.getElementById('interp-col-mod').classList.add('active');
+        } else {
+          riskColor = 'var(--danger)';
+          riskLabel = 'High Risk';
+          badgeClass = 'badge-high';
+          document.getElementById('interp-col-high').classList.add('active');
+        }
+        
+        document.getElementById('score-display').style.color = riskColor;
+        fill.style.backgroundColor = riskColor;
+        
+        const badge = document.getElementById('risk-badge');
+        badge.textContent = riskLabel;
+        badge.className = `badge ${badgeClass}`;
+      }
+    }
+
+    init();
+  </script>
+</body>
+</html>

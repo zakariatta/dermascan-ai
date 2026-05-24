@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DermaScan AI - Clinical Decision Support Tool</title>
+  <link rel="stylesheet" href="./css/styles.css">
+  <style>
+    /* Specific styles for index.html */
+    .hero-section {
+      background-color: var(--bg);
+      padding: 96px 0;
+    }
+    .hero-eyebrow {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--accent);
+      letter-spacing: 0.08em;
+      margin-bottom: 16px;
+      text-transform: uppercase;
+    }
+    .hero-headline {
+      font-size: 42px;
+      font-weight: 600;
+      color: var(--primary);
+      line-height: 1.2;
+    }
+    .hero-subhead {
+      font-size: 17px;
+      color: var(--text-secondary);
+      max-width: 520px;
+      margin-top: 20px;
+    }
+    .hero-cta-row {
+      margin-top: 36px;
+      display: flex;
+      gap: 16px;
+      align-items: center;
+    }
+    .hero-disclaimer {
+      margin-top: 24px;
+      font-size: 13px;
+      color: var(--text-secondary);
+      background-color: white;
+      border-left: 3px solid var(--border);
+      padding: 12px 16px;
+      border-radius: 0 4px 4px 0;
+      max-width: 600px;
+    }
+    
+    .how-it-works {
+      padding: 80px 0;
+      background-color: white;
+    }
+    .hiw-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+      margin-top: 32px;
+    }
+    .hiw-card {
+      text-align: left;
+    }
+    .hiw-icon {
+      width: 40px;
+      height: 40px;
+      color: var(--accent);
+      margin-bottom: 16px;
+    }
+    
+    .about-section {
+      padding: 80px 0;
+      background-color: var(--bg);
+    }
+    .about-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 48px;
+    }
+    .stat-box {
+      background: white;
+      border: 1px solid var(--border);
+      padding: 24px;
+      border-radius: 8px;
+      margin-bottom: 16px;
+      font-weight: 500;
+      color: var(--primary);
+    }
+    
+    .disclaimer-section {
+      padding: 48px 0;
+      background-color: var(--primary);
+      color: white;
+    }
+    .disclaimer-section h2 {
+      color: white;
+      font-size: 24px;
+      margin-bottom: 16px;
+    }
+    .disclaimer-section p {
+      color: rgba(255,255,255,0.8);
+      font-size: 14px;
+      margin-bottom: 16px;
+    }
+    
+    .footer {
+      background-color: var(--primary);
+      color: white;
+      padding: 32px 0;
+      border-top: 1px solid rgba(255,255,255,0.15);
+      font-size: 14px;
+    }
+    .footer a {
+      color: rgba(255,255,255,0.8);
+    }
+    .footer a:hover {
+      color: white;
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <div class="container flex justify-between items-center w-full">
+      <div class="flex items-center gap-8">
+        <svg class="icon" style="color: var(--accent); width: 24px; height: 24px;" viewBox="0 0 24 24">
+          <path d="M19 11h-5V6h-4v5H5v4h5v5h4v-5h5v-4z"/>
+        </svg>
+        <span style="font-weight: 600; font-size: 18px; color: var(--primary);">DermaScan AI</span>
+      </div>
+      <div class="flex items-center gap-24">
+        <a href="auth.html" style="font-weight: 500;">Sign In</a>
+        <a href="auth.html" class="btn btn-primary">Create Account</a>
+      </div>
+    </div>
+  </nav>
+
+  <main class="main-content">
+    <!-- Hero Section -->
+    <section class="hero-section">
+      <div class="container grid grid-cols-2 gap-48 items-center">
+        <div>
+          <div class="hero-eyebrow">CLINICAL DECISION SUPPORT TOOL</div>
+          <h1 class="hero-headline">AI-Assisted Skin Cancer Risk Screening</h1>
+          <p class="hero-subhead">Upload a photograph of a skin lesion and receive an automated risk probability score. Our analysis supports — but does not replace — evaluation by a qualified dermatologist.</p>
+          
+          <div class="hero-cta-row">
+            <a href="auth.html" class="btn btn-primary">Create Your Account</a>
+            <a href="#how-it-works" class="btn btn-secondary">Learn How It Works</a>
+          </div>
+          
+          <div class="hero-disclaimer">
+            This tool provides an AI-generated probability score only. It is not a medical diagnosis. Always consult a licensed dermatologist for clinical evaluation.
+          </div>
+        </div>
+        <div>
+          <!-- Abstract SVG diagram -->
+          <svg viewBox="0 0 400 300" style="width: 100%; height: auto;">
+            <!-- Mobile/Camera -->
+            <rect x="20" y="80" width="80" height="140" rx="8" fill="white" stroke="var(--border)" stroke-width="2"/>
+            <circle cx="60" cy="150" r="15" fill="var(--bg)" stroke="var(--accent)" stroke-width="2"/>
+            
+            <!-- Arrow -->
+            <path d="M 120 150 L 160 150" stroke="var(--border)" stroke-width="2" stroke-dasharray="4 4" marker-end="url(#arrow)"/>
+            
+            <!-- AI Box -->
+            <rect x="180" y="110" width="100" height="80" rx="4" fill="white" stroke="var(--primary)" stroke-width="2"/>
+            <text x="230" y="155" text-anchor="middle" font-family="system-ui" font-weight="600" font-size="14" fill="var(--primary)">AI Analysis</text>
+            
+            <!-- Arrow -->
+            <path d="M 300 150 L 340 150" stroke="var(--border)" stroke-width="2" stroke-dasharray="4 4" marker-end="url(#arrow)"/>
+            
+            <!-- Results bar -->
+            <rect x="360" y="70" width="20" height="160" rx="10" fill="var(--bg)"/>
+            <rect x="360" y="150" width="20" height="80" rx="10" fill="var(--warning)"/>
+            
+            <defs>
+              <marker id="arrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--border)"/>
+              </marker>
+            </defs>
+          </svg>
+        </div>
+      </div>
+    </section>
+
+    <!-- How It Works -->
+    <section id="how-it-works" class="how-it-works">
+      <div class="container text-center">
+        <div class="section-label">SCREENING PROCESS</div>
+        <h2 class="mt-8 mb-32">Three Steps to Your Risk Assessment</h2>
+        
+        <div class="hiw-grid">
+          <div class="card hiw-card">
+            <svg class="hiw-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+              <circle cx="12" cy="7" r="4"></circle>
+            </svg>
+            <h3 style="font-size: 18px; margin-bottom: 8px;">Create Account</h3>
+            <p style="font-size: 14px; color: var(--text-secondary);">Register securely with your personal and contact details. Your medical data is stored privately and encrypted.</p>
+          </div>
+          
+          <div class="card hiw-card">
+            <svg class="hiw-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+              <circle cx="8.5" cy="8.5" r="1.5"></circle>
+              <polyline points="21 15 16 10 5 21"></polyline>
+            </svg>
+            <h3 style="font-size: 18px; margin-bottom: 8px;">Upload Image</h3>
+            <p style="font-size: 14px; color: var(--text-secondary);">Photograph the area of concern under good lighting. Upload directly from your device in JPG or PNG format.</p>
+          </div>
+          
+          <div class="card hiw-card">
+            <svg class="hiw-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="18" y1="20" x2="18" y2="10"></line>
+              <line x1="12" y1="20" x2="12" y2="4"></line>
+              <line x1="6" y1="20" x2="6" y2="14"></line>
+            </svg>
+            <h3 style="font-size: 18px; margin-bottom: 8px;">Receive Analysis</h3>
+            <p style="font-size: 14px; color: var(--text-secondary);">Our AI model analyzes visual patterns and returns a probability score for malignancy risk within seconds.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- About Tech -->
+    <section class="about-section">
+      <div class="container about-grid">
+        <div>
+          <h2>How the AI Model Works</h2>
+          <p class="mt-16">Our system utilizes a state-of-the-art convolutional neural network trained on extensive, annotated dermatological image datasets. The model is designed to identify visual features commonly associated with melanoma and other skin cancers.</p>
+          <p class="mt-16">It outputs a probability score based on pattern recognition — it is not a diagnosis. The model's accuracy is highly dependent on image quality, focus, and lighting conditions.</p>
+          <p class="mt-16" style="font-weight: 500;">Regular dermatological checkups remain essential regardless of AI output.</p>
+        </div>
+        <div class="flex-col justify-center">
+          <div class="stat-box">
+            Designed for Screening Use Only
+          </div>
+          <div class="stat-box">
+            Probability Score Range: 0% – 100%
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Disclaimer -->
+    <section class="disclaimer-section">
+      <div class="container">
+        <h2>Important Medical Disclaimer</h2>
+        <p>DermaScan AI is a clinical decision support tool intended to assist — not replace — professional medical evaluation. The AI-generated probability scores are for informational purposes only and do not constitute a medical diagnosis, medical advice, or a recommendation for treatment. No doctor-patient relationship is established through use of this platform.</p>
+        <p>If you have concerns about a skin lesion, consult a board-certified dermatologist immediately. In case of emergency, contact your local emergency services.</p>
+        <p style="font-style: italic; opacity: 0.8; margin-top: 24px;">For informational and screening assistance only. Not a substitute for professional medical care.</p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container flex justify-between items-center">
+      <div>DermaScan AI — Clinical Decision Support Platform</div>
+      <div>© 2025 DermaScan AI. All rights reserved.</div>
+      <div class="flex gap-16">
+        <a href="#">Privacy Policy</a>
+        <a href="#">Terms of Use</a>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>

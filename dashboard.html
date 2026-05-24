@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - DermaScan AI</title>
+  <link rel="stylesheet" href="./css/styles.css">
+  <style>
+    body {
+      background-color: var(--bg);
+      overflow-x: hidden;
+    }
+    .dashboard-layout {
+      display: flex;
+      min-height: calc(100vh - 64px);
+    }
+    .sidebar {
+      width: 240px;
+      flex-shrink: 0;
+      background-color: white;
+      border-right: 1px solid var(--border);
+      padding: 24px 0;
+      position: fixed;
+      top: 64px;
+      bottom: 0;
+      overflow-y: auto;
+    }
+    .main-area {
+      flex: 1;
+      margin-left: 240px;
+      padding: 32px 40px;
+    }
+    .profile-section {
+      padding: 0 24px 24px 24px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 24px;
+    }
+    .avatar {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background-color: #E8EEF5;
+      color: var(--accent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      font-weight: 600;
+      margin-bottom: 12px;
+    }
+    .patient-name { font-size: 16px; font-weight: 600; color: var(--primary); }
+    .patient-email { font-size: 13px; color: var(--text-secondary); word-break: break-all; }
+    
+    .nav-links { list-style: none; }
+    .nav-link {
+      display: flex;
+      align-items: center;
+      padding: 12px 24px;
+      color: var(--text-secondary);
+      font-weight: 500;
+      cursor: pointer;
+      border-left: 3px solid transparent;
+      transition: background-color 0.2s, color 0.2s;
+    }
+    .nav-link:hover { background-color: #F8FAFC; color: var(--primary); }
+    .nav-link.active {
+      border-left-color: var(--accent);
+      background-color: #F0F5FB;
+      color: var(--primary);
+    }
+    .nav-link svg { margin-right: 12px; width: 18px; height: 18px; }
+    
+    .sidebar-footer {
+      position: absolute;
+      bottom: 24px;
+      left: 24px;
+      right: 24px;
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+    
+    /* Main Content */
+    .welcome-panel {
+      background-color: #F0F5FB;
+      border: 1px solid #BDD0E8;
+      border-top: none;
+      border-left: 4px solid var(--accent);
+      padding: 24px 32px;
+      border-radius: 0 8px 8px 0;
+      margin-bottom: 24px;
+    }
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+      margin-bottom: 32px;
+    }
+    .stat-card {
+      background: white;
+      border: 1px solid var(--border);
+      padding: 24px;
+      border-radius: 8px;
+    }
+    .stat-label { font-size: 13px; color: var(--text-secondary); text-transform: uppercase; font-weight: 500; margin-bottom: 8px; }
+    .stat-value { font-size: 24px; font-weight: 600; color: var(--primary); display: flex; align-items: center; }
+    
+    .upload-dropzone {
+      border: 2px dashed var(--border);
+      border-radius: 8px;
+      background-color: #FAFBFC;
+      padding: 32px;
+      text-align: center;
+      cursor: pointer;
+      position: relative;
+      transition: border-color 0.2s, background-color 0.2s;
+    }
+    .upload-dropzone:hover {
+      border-color: var(--accent);
+      background-color: #F0F5FB;
+    }
+    .upload-icon { width: 36px; height: 36px; color: var(--disabled-text); margin-bottom: 16px; }
+    #file-input { display: none; }
+    
+    .preview-container {
+      display: none;
+      align-items: center;
+      gap: 16px;
+      margin-top: 16px;
+      padding: 16px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: white;
+    }
+    .preview-img { width: 120px; height: 120px; object-fit: cover; border-radius: 6px; }
+    .preview-info { flex: 1; text-align: left; }
+    .remove-btn { color: var(--danger); cursor: pointer; background: none; border: none; font-size: 20px; padding: 8px; }
+    
+    .info-box {
+      background-color: #F0F5FB;
+      color: var(--primary);
+      padding: 12px 16px;
+      border-radius: 6px;
+      font-size: 14px;
+      margin-top: 16px;
+      margin-bottom: 24px;
+      display: flex;
+      gap: 12px;
+    }
+    
+    .history-table { width: 100%; border-collapse: collapse; }
+    .history-table th { text-align: left; padding: 12px 16px; font-size: 13px; color: var(--text-secondary); font-weight: 500; border-bottom: 1px solid var(--border); }
+    .history-table td { padding: 16px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+    .history-img { width: 48px; height: 48px; object-fit: cover; border-radius: 4px; border: 1px solid var(--border); }
+    
+    .empty-state { text-align: center; padding: 48px 0; color: var(--text-secondary); }
+    
+    .overlay-loading {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(255,255,255,0.8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 8px;
+      z-index: 10;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <div class="container flex justify-between items-center w-full" style="padding: 0 24px; max-width: none;">
+      <div class="flex items-center gap-8">
+        <svg class="icon" style="color: var(--accent); width: 24px; height: 24px;" viewBox="0 0 24 24">
+          <path d="M19 11h-5V6h-4v5H5v4h5v5h4v-5h5v-4z"/>
+        </svg>
+        <span style="font-weight: 600; font-size: 18px; color: var(--primary);">DermaScan AI</span>
+      </div>
+      <div class="flex items-center gap-24">
+        <div class="flex items-center gap-8 text-primary" style="font-weight: 500;">
+          <svg class="icon" style="width: 16px; height: 16px; color: var(--success);" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15l-4-4 1.41-1.41L11 14.17l6.59-6.59L19 9l-8 8z"/></svg>
+          <span id="nav-user-name" class="skeleton" style="width: 100px; height: 20px;"></span>
+        </div>
+        <button id="signout-btn" class="btn btn-secondary" style="padding: 6px 16px; font-size: 14px;">Sign Out</button>
+      </div>
+    </div>
+  </nav>
+
+  <div class="dashboard-layout">
+    <aside class="sidebar">
+      <div class="profile-section text-center">
+        <div class="avatar mx-auto" id="sidebar-avatar"></div>
+        <div class="patient-name" id="sidebar-name">Loading...</div>
+        <div class="patient-email" id="sidebar-email"></div>
+      </div>
+      
+      <ul class="nav-links">
+        <li class="nav-link active">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+          Dashboard
+        </li>
+        <li class="nav-link">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
+          New Scan
+        </li>
+        <li class="nav-link">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="12 8 12 12 14 14"></polyline><circle cx="12" cy="12" r="10"></circle></svg>
+          History
+        </li>
+        <li class="nav-link">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+          Profile
+        </li>
+      </ul>
+      
+      <div class="sidebar-footer flex items-center gap-8">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 14px; height: 14px;"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+        <span>Need help? <a href="#">Contact a dermatologist.</a></span>
+      </div>
+    </aside>
+
+    <main class="main-area">
+      <div class="welcome-panel">
+        <h1 style="font-size: 22px; font-weight: 600;" id="welcome-msg">Good morning.</h1>
+        <p style="color: var(--text-secondary); margin-top: 4px;">Your personal skin cancer screening dashboard. Upload an image to receive your next AI risk assessment.</p>
+      </div>
+
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-label">Total Scans</div>
+          <div class="stat-value" id="stat-total"><span class="skeleton" style="width: 40px; height: 32px; display: inline-block;"></span></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Last Scan</div>
+          <div class="stat-value" id="stat-last-date"><span class="skeleton" style="width: 100px; height: 32px; display: inline-block;"></span></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Last Risk Score</div>
+          <div class="stat-value" id="stat-last-score"><span class="skeleton" style="width: 80px; height: 32px; display: inline-block;"></span></div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom: 32px; position: relative;">
+        <h2 style="font-size: 18px; margin-bottom: 16px;">New Skin Image Analysis</h2>
+        
+        <div class="upload-dropzone" id="dropzone" onclick="document.getElementById('file-input').click()">
+          <svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+          <div style="font-weight: 500; color: var(--primary);">Drag and drop your image here, or click to select</div>
+          <div style="font-size: 13px; color: var(--text-secondary); margin-top: 8px;">Accepted formats: JPG, PNG. Maximum size: 10MB.</div>
+          <div style="font-size: 12px; color: var(--success); margin-top: 16px; display: flex; align-items: center; justify-content: center; gap: 4px;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 12px; height: 12px;"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+            Your data is encrypted and stored securely
+          </div>
+        </div>
+        <input type="file" id="file-input" accept="image/jpeg, image/png">
+        
+        <div class="preview-container" id="preview-container">
+          <img id="preview-img" class="preview-img" src="" alt="Preview">
+          <div class="preview-info">
+            <div style="font-weight: 500; color: var(--primary);" id="preview-name">filename.jpg</div>
+            <div style="font-size: 13px; color: var(--text-secondary);" id="preview-size">2.4 MB</div>
+          </div>
+          <button class="remove-btn" id="remove-btn" onclick="clearPreview()">×</button>
+        </div>
+
+        <div class="info-box">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 20px; height: 20px; flex-shrink: 0;"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+          <div>For best results: photograph under natural daylight, ensure the lesion fills at least 50% of the frame, and avoid shadows or blur.</div>
+        </div>
+        
+        <div id="upload-error" class="error-msg" style="display: none; margin-bottom: 16px;"></div>
+        <button class="btn btn-primary" id="analyze-btn" disabled>Analyse Image</button>
+
+        <div class="overlay-loading" id="upload-overlay">
+          <div class="text-center">
+            <div class="spinner" style="border-top-color: var(--accent); width: 32px; height: 32px; border-width: 3px;"></div>
+            <div style="margin-top: 16px; font-weight: 500; color: var(--primary);">Analysing image using AI model...</div>
+            <div style="font-size: 13px; color: var(--text-secondary); margin-top: 4px;">This may take a few seconds.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2 style="font-size: 18px; margin-bottom: 16px;">Previous Analyses</h2>
+        <table class="history-table">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Image</th>
+              <th>Risk Score</th>
+              <th>Risk Level</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="history-body">
+            <tr><td colspan="5" style="text-align: center; padding: 32px 0;"><div class="skeleton" style="width: 100%; height: 40px; margin-bottom: 8px;"></div><div class="skeleton" style="width: 100%; height: 40px;"></div></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </main>
+  </div>
+
+  <script type="module">
+    import { supabase, getPatientProfile, getPatientScansWithPredictions, uploadScanImage, createScanRecord, savePrediction } from './js/supabase.js';
+    import { getPrediction } from './js/ai.js';
+
+    let currentUser = null;
+    let selectedFile = null;
+
+    async function init() {
+      const { data: { session }, error } = await supabase.auth.getSession();
+      if (!session) {
+        window.location.href = 'auth.html';
+        return;
+      }
+      currentUser = session.user;
+      
+      document.getElementById('signout-btn').addEventListener('click', async () => {
+        await supabase.auth.signOut();
+        window.location.href = 'index.html';
+      });
+
+      try {
+        const profile = await getPatientProfile(currentUser.id);
+        const fullName = `${profile.first_name} ${profile.last_name}`;
+        document.getElementById('nav-user-name').textContent = fullName;
+        document.getElementById('nav-user-name').classList.remove('skeleton');
+        
+        document.getElementById('sidebar-name').textContent = fullName;
+        document.getElementById('sidebar-email').textContent = profile.email;
+        document.getElementById('sidebar-avatar').textContent = profile.first_name.charAt(0) + profile.last_name.charAt(0);
+        document.getElementById('welcome-msg').textContent = `Good morning, ${profile.first_name}.`;
+
+        await loadHistory();
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    function getRiskLevel(prob) {
+      if (prob < 0.3) return { label: 'Low', class: 'badge-low' };
+      if (prob <= 0.6) return { label: 'Moderate', class: 'badge-moderate' };
+      return { label: 'High', class: 'badge-high' };
+    }
+
+    async function loadHistory() {
+      try {
+        const scans = await getPatientScansWithPredictions(currentUser.id);
+        const tbody = document.getElementById('history-body');
+        
+        document.getElementById('stat-total').innerHTML = scans.length;
+        if (scans.length > 0) {
+          const last = scans[0];
+          document.getElementById('stat-last-date').innerHTML = new Date(last.uploaded_at).toLocaleDateString();
+          if (last.predictions && last.predictions.length > 0) {
+            const prob = last.predictions[0].probability;
+            const risk = getRiskLevel(prob);
+            document.getElementById('stat-last-score').innerHTML = `${(prob * 100).toFixed(1)}% <span class="badge ${risk.class}" style="margin-left: 8px;">${risk.label}</span>`;
+          } else {
+            document.getElementById('stat-last-score').innerHTML = 'Processing';
+          }
+        } else {
+          document.getElementById('stat-last-date').innerHTML = 'None yet';
+          document.getElementById('stat-last-score').innerHTML = '-';
+        }
+
+        if (scans.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="5"><div class="empty-state">No analyses yet. Upload your first image above.</div></td></tr>`;
+          return;
+        }
+
+        tbody.innerHTML = scans.map(scan => {
+          const date = new Date(scan.uploaded_at).toLocaleDateString();
+          let probDisplay = '-';
+          let riskBadge = '-';
+          if (scan.predictions && scan.predictions.length > 0) {
+            const prob = scan.predictions[0].probability;
+            const risk = getRiskLevel(prob);
+            probDisplay = `${(prob * 100).toFixed(1)}%`;
+            riskBadge = `<span class="badge ${risk.class}">${risk.label}</span>`;
+          }
+          return `
+            <tr>
+              <td>${date}</td>
+              <td><img src="${scan.image_url}" class="history-img" alt="Scan thumbnail" loading="lazy"></td>
+              <td style="font-weight: 500;">${probDisplay}</td>
+              <td>${riskBadge}</td>
+              <td><a href="result.html?scanId=${scan.id}" style="font-size: 14px; font-weight: 500;">View Report</a></td>
+            </tr>
+          `;
+        }).join('');
+
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    const fileInput = document.getElementById('file-input');
+    const dropzone = document.getElementById('dropzone');
+    const previewContainer = document.getElementById('preview-container');
+    const analyzeBtn = document.getElementById('analyze-btn');
+
+    fileInput.addEventListener('change', handleFileSelect);
+    
+    dropzone.addEventListener('dragover', (e) => { e.preventDefault(); dropzone.style.borderColor = 'var(--accent)'; });
+    dropzone.addEventListener('dragleave', (e) => { e.preventDefault(); dropzone.style.borderColor = 'var(--border)'; });
+    dropzone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dropzone.style.borderColor = 'var(--border)';
+      if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+        fileInput.files = e.dataTransfer.files;
+        handleFileSelect();
+      }
+    });
+
+    function handleFileSelect() {
+      if (fileInput.files && fileInput.files[0]) {
+        selectedFile = fileInput.files[0];
+        document.getElementById('preview-name').textContent = selectedFile.name;
+        document.getElementById('preview-size').textContent = (selectedFile.size / (1024 * 1024)).toFixed(2) + ' MB';
+        
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          document.getElementById('preview-img').src = e.target.result;
+        }
+        reader.readAsDataURL(selectedFile);
+        
+        dropzone.style.display = 'none';
+        previewContainer.style.display = 'flex';
+        analyzeBtn.disabled = false;
+        document.getElementById('upload-error').style.display = 'none';
+      }
+    }
+
+    window.clearPreview = function() {
+      selectedFile = null;
+      fileInput.value = '';
+      dropzone.style.display = 'block';
+      previewContainer.style.display = 'none';
+      analyzeBtn.disabled = true;
+    };
+
+    analyzeBtn.addEventListener('click', async () => {
+      if (!selectedFile) return;
+      
+      const overlay = document.getElementById('upload-overlay');
+      const errDiv = document.getElementById('upload-error');
+      
+      overlay.style.display = 'flex';
+      errDiv.style.display = 'none';
+      analyzeBtn.disabled = true;
+      
+      try {
+        const tempScanId = crypto.randomUUID();
+        
+        const probability = await getPrediction(selectedFile);
+        const imageUrl = await uploadScanImage(selectedFile, currentUser.id, tempScanId);
+        const scan = await createScanRecord(currentUser.id, imageUrl);
+        await savePrediction(scan.id, probability);
+        
+        window.location.href = `result.html?scanId=${scan.id}`;
+      } catch (err) {
+        console.error(err);
+        errDiv.textContent = "Image upload or analysis failed. Please try again.";
+        errDiv.style.display = 'block';
+        overlay.style.display = 'none';
+        analyzeBtn.disabled = false;
+      }
+    });
+
+    init();
+  </script>
+</body>
+</html>
